@@ -1,97 +1,35 @@
-# @worketyamo/ts-starter
 
-## Vue d'ensemble
+# Blog Management API
 
-`@worketyamo/ts-starter` est un projet de démarrage TypeScript conçu pour simplifier le développement d'applications Express.js. Ce kit de démarrage inclut les configurations et dépendances essentielles pour vous permettre de démarrer rapidement, tout en appliquant des normes de qualité et de cohérence du code avec ESLint et Prettier.
 
-## Fonctionnalités
+This is a RESTful API built with Node.js, Express, and MongoDB for managing a blog system. The API provides user authentication via JWT, password hashing with bcrypt, and full CRUD operations for blog posts. It serves as the backend for a blog platform where users can sign up, log in, and manage their own blog posts.
 
-- TypeScript pour le typage statique et une intelligence de code avancée
-- Express.js pour la création d'APIs et d'applications web robustes
-- ESLint et Prettier pour la qualité et le formatage du code
-- Support des variables d'environnement avec dotenv et env-var
-- Middleware de compression pour améliorer les performances
-- Middleware de limitation de débit pour protéger votre application
-- Intégration de Swagger pour la documentation des APIs
+## Features
 
-## Prérequis
+- **User Authentication**: Sign up, log in, and token-based authentication (JWT).
+- **Password Hashing**: Secure password storage - using bcrypt.
+- **CRUD Operations**: Create, read, update, and delete blog posts.
+- **Send Email**: send mail to all users when they are login in the plateform
+- **MongoDB Database**: Blog data stored using MongoDB.
+- **Cross-Origin** Resource Sharing (CORS) enabled for communication with a frontend.
+## Tech Stack
 
-- Node.js >= 20.12.0
-- Yarn >= 1.22.19
+- **[Node.js](https://nodejs.org/en)**: JavaScript runtime for the backend.
+Express.js: Web framework for building the API.
+- **[MongoDB](https://www.mongodb.com/)**: NoSQL database for storing blogs and users.
+- **[prisma](https://www.prisma.io/)**: ORM for MongoDB to define schemas and models.
+- **[JWT](https://jwt.io/)**: JSON Web Token for secure authentication.
+- **[bcryptjs](https://www.npmjs.com/package/bcrypt)**: Library for hashing user passwords.
+- **[Nodemailer](https://nodemailer.com/)**: library to using to send mail
 
-> Note : Utiliser Yarn pour ce projet.
+## Feedback
 
-## Pour commencer
+If you have any feedback, please reach out to us at kenwoubarthez@gmail.com
 
-### Installation
 
-Clonez le dépôt et installez les dépendances :
+## License
 
-```bash
-git clone https://github.com/worketyamo/ts-starter.git
-cd ts-starter
-yarn install
-```
+this projet is under a  [MIT Licence](https://choosealicense.com/licenses/mit/)
 
-### Exécution en mode développement
 
-Pour démarrer le serveur de développement avec redémarrages automatiques en cas de modifications des fichiers, utilisez :
-
-```bash
-yarn dev
-```
-
-### Compilation du projet
-
-Pour compiler le projet pour la production, utilisez :
-
-```bash
-yarn build
-```
-
-### Démarrage de l'application
-
-Pour démarrer l'application après la compilation, utilisez :
-
-```bash
-yarn start
-```
-
-## Scripts
-
-- **dev** : Lance le serveur de développement avec ts-node-dev
-- **build** : Nettoie le dossier dist et compile le code TypeScript
-- **start** : Exécute le code JavaScript compilé à partir du dossier dist
-
-## Utilisation
-
-Démarrage du serveur
-Pour démarrer le serveur, exécutez la commande suivante :
-
-```bash
-yarn start
-```
-Le serveur sera lancé sur le port : http://localhost:3000
-
-Documentation de l'API
-La documentation de l'API est accessible à l'adresse suivante :
-
-```sh
-http://localhost:3000/api-docs
- ```
-
-## Licence
-
-Ce projet est sous licence WORKETYAMO.
-
-## Contribution
-
-Les contributions sont les bienvenues ! Veuillez ouvrir un problème ou soumettre une demande de tirage.
-
-## Auteur
-
-Worketyamo
-
-## Informations supplémentaires
-
-Pour toute question ou support supplémentaire, veuillez contacter les mainteneurs du projet.
+![MIT License](https://img.shields.io/badge/License-MIT-green.svg)
