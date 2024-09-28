@@ -43,7 +43,6 @@ blog.post(
 blog.put(
     ROUTES.BLOG.UPDATE_BLOG,
     auth.authToken,
-    validator.validateIDOfParams,
     validator.validateBlog,
     validate,
     upload.single('image'),
@@ -54,7 +53,6 @@ blog.put(
 blog.delete(
     ROUTES.BLOG.DELETE_ONE_BLOG,
     auth.authToken,
-    validator.validateIDOfParams,
     blogsController.delete_one_blog
 )
 
@@ -62,7 +60,6 @@ blog.delete(
 blog.delete(
     ROUTES.BLOG.DELETE_MANY_BLOG,
     // auth.authToken,
-    validator.validateIDOfParams,
     blogsController.delete_All_blogs
 )
 

@@ -3,6 +3,7 @@ import { auth } from "../middleware/authUser";
 import usersControllers from "../controllers/users-controllers";
 import { validate, validator } from "../services/validator/validator";
 import ROUTES from "../utils/mocks/mocks-routes";
+import upload from "../middleware/upload-file";
 
 const user: Router = Router();
 
@@ -11,6 +12,7 @@ user.post(
     ROUTES.USER.INSCRIPTION, 
     validator.validateUser, 
     validate, 
+    upload.single('image'),
     usersControllers.inscription
 );
 
@@ -42,6 +44,7 @@ user.put(
     auth.authToken,
     validator.validateUser,
     validate, 
+    upload.single('image'),
     usersControllers.updateUserData
 );
 
@@ -54,7 +57,6 @@ user.delete(
 
 user.post(
     ROUTES.USER.REFRESH_TOKEN,
-    validator.validateUserID,
     validate,
     usersControllers.refreshAccessToken
 );

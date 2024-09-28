@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { body, param, validationResult } from "express-validator";
+import { body, validationResult } from "express-validator";
 import { HttpCode } from "../../core/constants";
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z]).{5,}$/;
@@ -61,14 +61,6 @@ export const validator = {
         ,
     ],
 
-    validateUserID: [
-        // validation de l'identifiant
-        param('userID')
-            .exists().withMessage('L\'ID de l\'utilisateur est requis !')
-            .isMongoId().withMessage('Format de l\'ID invalide !')
-        ,
-    ],
-
     validateBlog: [
         body('title')
             .exists().withMessage('title is required !')
@@ -80,17 +72,6 @@ export const validator = {
             .exists().withMessage('content is required !')
             .isLength({min:3}).withMessage('le contenu n\'est pas assez long !')
             .isString().withMessage('content should be a number !')
-        ,
-        body('number')
-            .exists().withMessage('number is required !')
-            .isInt().withMessage('number should be a number !')
-        ,
-    ],
-
-    validateIDOfParams: [
-        param('tableID')
-            .exists().withMessage('tableID is required in params !')
-            .isMongoId().withMessage("table ID passed in params should be a valid format !")
         ,
     ],
 }
