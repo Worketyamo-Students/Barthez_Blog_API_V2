@@ -10,7 +10,7 @@ const RefreshprivateKey = readFileSync(envs.JWT_REFRESH_PRIVATE_KEY as string, "
 const RefreshpublicKey = readFileSync(envs.JWT_REFRESH_PUBLIC_KEY as string, "utf-8");
 
 const userToken = {
-    accessToken: (payload: IUser) => {
+    accessToken: (payload) => {
         const signOption = {
             algorithm: envs.JWT_ALGORITHM as jwt.Algorithm,
             expiresIn: envs.JWT_ACCESS_EXPIRES_IN as string
@@ -38,7 +38,7 @@ const userToken = {
 
 
     // REFRESH TOKEN ET SES FONCTIONS
-    refreshToken: (payload: IUser) => {
+    refreshToken: (payload) => {
         const signOption = {
             algorithm: envs.JWT_ALGORITHM as jwt.Algorithm,
             expiresIn: envs.JWT_REFRESH_EXPIRES_IN as string

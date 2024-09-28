@@ -68,6 +68,31 @@ export const validator = {
             .isMongoId().withMessage('Format de l\'ID invalide !')
         ,
     ],
+
+    validateBlog: [
+        body('title')
+            .exists().withMessage('title is required !')
+            .isLength({min:3}).withMessage('le titre n\'est pas assez long !')
+            .isLength({max: 100}).withMessage('le titre est trop long !')
+            .isString().withMessage('title should be a number !')
+        ,
+        body('content')
+            .exists().withMessage('content is required !')
+            .isLength({min:3}).withMessage('le contenu n\'est pas assez long !')
+            .isString().withMessage('content should be a number !')
+        ,
+        body('number')
+            .exists().withMessage('number is required !')
+            .isInt().withMessage('number should be a number !')
+        ,
+    ],
+
+    validateIDOfParams: [
+        param('tableID')
+            .exists().withMessage('tableID is required in params !')
+            .isMongoId().withMessage("table ID passed in params should be a valid format !")
+        ,
+    ],
 }
 
 export const validate = (req: Request, res: Response, next: NextFunction) => {

@@ -13,12 +13,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user {
-  user_id  String @id @default(auto()) @map("_id") @db.ObjectId
+model User {
+  user_id  String  @id @default(auto()) @map("_id") @db.ObjectId
   name     String
-  email    String @unique
+  email    String  @unique
   password String
+  profile  String?
+
+  otp String
+  otp_expire_at DateTime
+
+  blog Blog[]
   role RoleUser @default(user)
+}
+
+model Blog {
+  blog_id   String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedat DateTime? @updatedAt
+  likes     Int      @default(0)
+  slug      String   @unique
+  image     String?
+  
+  author    User     @relation(fields: [authorID], references: [user_id])
+  authorID  String   @db.ObjectId
 }
 
 enum RoleUser {

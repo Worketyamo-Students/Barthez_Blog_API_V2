@@ -7,6 +7,8 @@ import sendMail from "../services/mail/sendMail/send-mail";
 import exceptions from "../utils/errors/exceptions";
 import userToken from "../services/jwt/jwt-functions";
 import prisma from "../core/config/prismaClient";
+import uploadImageToMinio from "../functions/uploader";
+import generateSimpleOTP from "../functions/generate-otp";
 
 
 const usersControllers = {
@@ -24,22 +26,32 @@ const usersControllers = {
             const hashPassword = await hashText(password);
             if(!hashPassword) return exceptions.badRequest(res, "error trying to crypt password !");
 
+            const profileURL = await uploadImageToMinio(req) 
+
+            const otp = generateSimpleOTP();
+            const now = new Date();
+            const expireOTP = new Date(now.getTime() + 10 * 60 * 1000)
+
             const newUser = await prisma.user.create({
                 data: {
                     name,
                     email,
                     password: hashPassword,
+                    profile: profileURL,
+                    otp,
+                    otp_expire_at: expireOTP              
                 }
             });
             if(!newUser) return exceptions.notFound(res, "Error when creating new user !");
-            
+
             sendMail(
                 newUser.email, // Receiver Email
-                'Welcome to ******', // Subjet
-                'mail', // Template
+                'Welcome to blog universe', // Subjet
+                'otp', // Template
                 { // Template Data
+                    date: now,
                     name: newUser.name, 
-                    content: "Merci de vous etre Inscrit !"
+                    otp: otp, 
                 }
             )
 
@@ -112,16 +124,6 @@ const usersControllers = {
                 {
                     secure: envs.JWT_COOKIE_SECURITY,
                     httpOnly: envs.JWT_COOKIE_HTTP_STATUS,
-                }
-            )
-
-            sendMail(
-                user.email, // Receiver Email
-                'Welcome to ******', // Subjet
-                'mail', // Template
-                { // Template Data
-                    name: user.name, 
-                    content: "Merci de vous etre Inscrit !"
                 }
             )
 

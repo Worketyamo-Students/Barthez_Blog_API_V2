@@ -1,9 +1,8 @@
-FROM mongo-express:1.0.2-20-alpine3.19
+FROM node:22.9-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY package.json yarn.lock ./
-
 
 RUN yarn install
 
@@ -13,4 +12,4 @@ RUN yarn build
 
 EXPOSE 3000
 
-CMD ["node", "dist/app.js"]
+CMD ["yarn", "dev"]

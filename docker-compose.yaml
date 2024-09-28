@@ -2,15 +2,14 @@ services:
   app:
     build: .
     ports:
-      - '4000:3000'
+      - '4000:3000'      
     env_file:
       - ./.env
     depends_on:
       - mongo
-    develop:
-      watch:
-        - path: ./
-          action: rebuild
+    volumes:
+      - ./:/app
+    command: ["yarn", "dev"]
 
   mongo:
     image: mongo:latest
