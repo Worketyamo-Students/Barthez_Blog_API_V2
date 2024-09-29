@@ -28,6 +28,7 @@ const exceptions = {
     },
 
     serverError : (res: Response, error: unknown) => {
+        console.log(error);
         res
             .status(HttpCode.INTERNAL_SERVER_ERROR)
             .json({msg: error})

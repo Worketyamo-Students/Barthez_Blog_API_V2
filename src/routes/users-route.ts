@@ -19,7 +19,7 @@ user.post(
 //? Connexion of user
 user.post(
     ROUTES.USER.CONNEXION, 
-    validator.validateUserAtLogin, 
+    validator.validateEmail, 
     validate, 
     usersControllers.connexion
 );
@@ -34,16 +34,15 @@ user.post(
 //? consultation of user
 user.get(
     ROUTES.USER.GET_USER, 
-    auth.authToken,
     usersControllers.consultuser
 );
 
 //? update user
 user.put(
-    ROUTES.USER.UPDATE_USER, 
+    ROUTES.USER.UPDATE_USER,
     auth.authToken,
-    validator.validateUser,
-    validate, 
+    // validator.validateUser,
+    // validate, 
     upload.single('image'),
     usersControllers.updateUserData
 );
@@ -55,10 +54,39 @@ user.delete(
     usersControllers.deleteUser
 );
 
-user.post(
-    ROUTES.USER.REFRESH_TOKEN,
-    validate,
-    usersControllers.refreshAccessToken
+//? changepassword
+user.put(
+    ROUTES.USER.CHANGE_PASSSWORD,
+    auth.authToken,
+    validator.validatePWDs,
+    validate, 
+    usersControllers.changePassword
 );
+
+//? reset password
+user.put(
+    ROUTES.USER.RESET_PASSSWORD,
+    validator.validatenewPWD,
+    validate, 
+    usersControllers.resetPassword
+);
+
+//? verifyOTP
+user.put(
+    ROUTES.USER.VERIFY_OTP,
+    auth.authToken,
+    validator.validateOTP,
+    validate, 
+    usersControllers.verifyOtp
+);
+
+//? resendOTP
+user.get(
+    ROUTES.USER.RESEND_OTP,
+    validator.validateEmail,
+    validate, 
+    usersControllers.resendOTP
+);
+
 
 export default user;

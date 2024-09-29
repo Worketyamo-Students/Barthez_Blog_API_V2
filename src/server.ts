@@ -10,6 +10,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser';
 import user from './routes/users-route';
 import { envs } from './core/config/env';
+import blog from './routes/blogs-route';
 
 
 const app = express();
@@ -43,13 +44,23 @@ app.use(morgan('combined'));// Journalisation des requetes au format combined
 
 // Routes du programme
 app.use(
-	"/users",
+	"/user",
 	rateLimit({
 		max: envs.MAX_UNIQ_QUERY_NUMBER,
 		windowMs: envs.MAX_UNIQ_QUERY_WINDOW,
 		message: "Trop de requete à partir de cette addresse IP sur ce endPoint !"
 	}),
 	user
+);
+
+app.use(
+	"/blog",
+	rateLimit({
+		max: envs.MAX_UNIQ_QUERY_NUMBER,
+		windowMs: envs.MAX_UNIQ_QUERY_WINDOW,
+		message: "Trop de requete à partir de cette addresse IP sur ce endPoint !"
+	}),
+	blog
 );
 
 // Journalisations

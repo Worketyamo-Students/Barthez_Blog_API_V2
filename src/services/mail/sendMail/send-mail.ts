@@ -18,7 +18,7 @@ async function sendMail<K extends keyof typeof templateManager>(
         
         //options du message a envoyer
         const mailOptions = {
-            from: `Barthez_Web Developper : ${envs.MAIL_ADDRESS}`,
+            from: `Universe Blog : ${envs.MAIL_ADDRESS}`,
             to: receiver,
             subject: subjet,
             html: content

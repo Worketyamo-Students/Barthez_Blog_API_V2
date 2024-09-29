@@ -7,7 +7,10 @@ const ROUTES = {
         GET_USER: '/profile/:userID',
         UPDATE_USER: '/profile/:userID',
         DELETE_USER: '/profile/:userID',
-        REFRESH_TOKEN: '/refresh/:userID',
+        RESEND_OTP: '/resend-otp',
+        VERIFY_OTP: '/verify-otp',
+        RESET_PASSSWORD: "/profile/config",
+        CHANGE_PASSSWORD: "/profile/config"
     },
     
     BLOG: {

@@ -97,9 +97,9 @@ console.log(authorID);
                     title: true, content: true, createdAt: true, updatedat: true, likes: true, slug: true, image: true, authorID: true
                 }
             })
-            if(!blog) return exceptions.badRequest(res, GLOBAL_MSG.TRAITEMENT_FAILED)
+            if(!blog) return exceptions.notFound(res, GLOBAL_MSG.NOT_FOUND)
 
-            res.status(HttpCode.OK).json({msg: blog})
+            res.status(HttpCode.OK).json({msg: blog});
         } catch (error) {
             exceptions.serverError(res, error)
         }
@@ -133,7 +133,8 @@ console.log(authorID);
 console.log(authorID);
             
             const blog = await prisma.blog.findUnique({where: {blog_id: blogID}});
-            if(!blog) return exceptions.badRequest(res, GLOBAL_MSG.TRAITEMENT_FAILED)
+            if(!blog) return exceptions.notFound(res, GLOBAL_MSG.NOT_FOUND);
+
             if(blog.authorID  !== authorID) return exceptions.badRequest(res, GLOBAL_MSG.UNAUTHORIZED)
 
             // generate unique slug using the title
@@ -167,6 +168,9 @@ console.log(authorID);
     delete_one_blog: async(req: Request, res: Response) => {
         try {
             const {blogID} = req.params
+            const blog = await prisma.blog.findUnique({where: {blog_id: blogID}});
+            if(!blog) return exceptions.notFound(res, GLOBAL_MSG.NOT_FOUND);
+            
             await prisma.blog.delete({where: {blog_id: blogID}})
 
             res.status(HttpCode.OK).json({msg: GLOBAL_MSG.SUCCESS})

@@ -30,7 +30,7 @@ const usersControllers = {
 
             const otp = generateSimpleOTP();
             const now = new Date();
-            const expireOTP = new Date(now.getTime() + 10 * 60 * 1000)
+            const expireOTP = new Date(now.getTime() + 10 * 60)
 
             const newUser = await prisma.user.create({
                 data: {
@@ -69,8 +69,7 @@ const usersControllers = {
         try {
             // fetch data from body
             const {email, password} = req.body;            
-            if(!email || !password) return exceptions.badRequest(res, "All fields are mandatory !");
-            
+
             // check if user exist
             const user = await prisma.user.findUnique({where: {email}});
             if(!user) return exceptions.notFound(res, "user not exist !");
@@ -84,10 +83,10 @@ const usersControllers = {
             
             const accessToken = userToken.accessToken(user);
             const refreshToken = userToken.refreshToken(user);
-
+            
             res.setHeader('authorization', `Bearer ${accessToken}`);
             res.cookie(
-                `${user.email}_key`,
+                `refresh_key`,
                 refreshToken,
                 {
                     httpOnly: envs.JWT_COOKIE_HTTP_STATUS,
@@ -120,10 +119,11 @@ const usersControllers = {
             // invalid access and refresh token
             res.setHeader('authorization', `Bearer `);
             res.clearCookie(
-                `${user.email}_key`,
+                `refresh_key`,
                 {
                     secure: envs.JWT_COOKIE_SECURITY,
                     httpOnly: envs.JWT_COOKIE_HTTP_STATUS,
+                    sameSite: "strict"
                 }
             )
 
@@ -150,6 +150,7 @@ const usersControllers = {
             const infoUser = {
                 name: user.name,
                 email: user.email,
+                profile: user.profile
             }
             
             // Return success message
@@ -173,14 +174,26 @@ const usersControllers = {
             if(!user) return exceptions.badRequest(res, "user not found !");
 
             // fetch data from body
-            const {name, email, password} = req.body;            
+            const {name, email} = req.body;            
 
-            const hashPassword = await hashText(password);
+            // Vérifier si le nouvel email est déjà utilisé par un autre utilisateur
+            if (email && email !== user.email) {
+                const emailExists = await prisma.user.findUnique({
+                    where: { email },
+                    select: { user_id: true } // On récupère uniquement l'ID pour voir si un utilisateur existe
+                });
+
+                if (emailExists) {
+                    return exceptions.conflict(res, "Email already in use by another user!");
+                }
+            }
+
+            const imageURL = await  uploadImageToMinio(req);
 
             const updateuser = await prisma.user.update({
                 where: {user_id: userID},
-                data: { name, email, password: hashPassword },
-                select: { name: true, email: true}
+                data: { name, email, profile: imageURL },
+                select: { name: true, email: true, profile: true}
             });
             if(!updateuser) return exceptions.notFound(res, "error when update user !");
 
@@ -219,45 +232,143 @@ const usersControllers = {
             return exceptions.serverError(res, error);
         }
     },
-
-    // Function to refresh token
-    refreshAccessToken: async(req: Request, res: Response) => {
-        try {            
-            // fetch employeID from authentification
-            const {userID} = req.params;            
-            if(!userID) return exceptions.badRequest(res, "user ID not found !");
-
-            // Check if user user exist
-            const user = await prisma.user.findUnique({where: {user_id: userID}})
-            if(!user) return exceptions.badRequest(res, "user not found !");
-
-
-            // Fetch refresh token of user from cookie
-            const refreshToken = req.cookies[`${user.email}_key`]; 
-            if(!refreshToken) return exceptions.unauthorized(res, "failed to fetch refreshtoken !");
+    
+    // Reset Password
+    changePassword: async (req: Request, res: Response) => {
+        try {
+            const {email, oldPassword, newpassword} = req.body;
             
-            // Decode refresh token
-            const userData = userToken.verifyRefreshToken(refreshToken);
-            if(!userData) return exceptions.unauthorized(res, "invalid refresh token!");
-            userData.password = "";
+            // check if user exist
+            const user = await prisma.user.findUnique({where: {email}});
+            if(!user) return exceptions.notFound(res, "user not exist !");
+            
+            if(!(await  comparePassword(oldPassword, user.password))) return exceptions.badRequest(res, "Incorrect password !");
 
-            // Creating a new access an a nex refresh token
-            const newAccessToken = userToken.accessToken(userData) 
-            const newRefreshToken = userToken.refreshToken(userData)
+            const hashPassword = await hashText(newpassword);
+            if(!hashPassword) return exceptions.badRequest(res, "error trying to crypt password !");
 
-            res.setHeader('authorization', `Bearer ${newAccessToken}`);
-            res.cookie(
-                `${user.email}_key`,
-                newRefreshToken,
-                {
-                    httpOnly: envs.JWT_COOKIE_HTTP_STATUS,
-                    secure: envs.JWT_COOKIE_SECURITY,
-                    maxAge: envs.JWT_COOKIE_DURATION
+            await prisma.user.update({
+                where: {email},
+                data: {
+                    password: hashPassword,
                 }
-            );
+            });
+
+            // Return success message
+            res
+                .status(HttpCode.OK)
+                .json({msg: `password successfully changed!`})
         } catch (error) {
             return exceptions.serverError(res, error);
         }
+    },
+
+    // Reset Password
+    resetPassword: async (req: Request, res: Response) => {
+        try {
+            const {email, newpassword} = req.body;
+            
+            // check if user exist
+            const user = await prisma.user.findUnique({where: {email}});
+            if(!user) return exceptions.notFound(res, "user not exist !");
+            
+            const hashPassword = await hashText(newpassword);
+            if(!hashPassword) return exceptions.badRequest(res, "error trying to crypt password !");
+
+            await prisma.user.update({
+                where: {email},
+                data: {
+                    password: hashPassword,
+                }
+            });
+
+            // Return success message
+            res
+                .status(HttpCode.OK)
+                .json({msg: `password successfully changed!`})
+        } catch (error) {
+            return exceptions.serverError(res, error);
+        }
+    },
+
+    // Verified OTP
+    verifyOtp: async (req: Request, res: Response) => {
+        try {
+            const {email, otp} = req.body;
+            
+            // check if user exist
+            const user = await prisma.user.findUnique({where: {email}});
+            if(!user) return exceptions.notFound(res, "user not exist !");
+
+            const now = new Date();
+
+            // Check if otp have ever expired
+            if(user.otp_expire_at > now) return exceptions.unauthorized(res, 'Your token have ever expired !');
+
+            // Check if it's the correct otp
+            if(user.otp !== otp) return exceptions.unauthorized(res, 'Incorect token !');
+        
+            // Invalid token
+            await prisma.user.update({
+                where: {
+                    email
+                },
+                data: {
+                    otp: "verified",
+                }
+            });
+            
+            res.status(HttpCode.OK).json({msg: "Otp verified !"});
+                
+        } catch (error) {
+            return exceptions.serverError(res, error);
+        }
+    }, 
+
+    // Resend OTP to the USER
+    resendOTP: async (req: Request, res: Response) => {
+        try {
+            const {email} = req.body;
+            
+            // check if user exist
+            const user = await prisma.user.findUnique({where: {email}});
+            if(!user) return exceptions.notFound(res, "user not exist !");
+
+            if(user.otp === "verified") return exceptions.unauthorized(res, 'veillez vous connecterd de nouveau !');
+
+            const otp = generateSimpleOTP();
+            const now = new Date();
+            const expireOTP = new Date(now.getTime() + 10 * 60)
+
+            const newUser = await prisma.user.update({
+                where: {
+                    email
+                },
+                data: {
+                    otp,
+                    otp_expire_at: expireOTP              
+                }
+            });
+            if(!newUser) return exceptions.notFound(res, "Error when creating generate otp !");
+
+            sendMail(
+                newUser.email, // Receiver Email
+                'Welcome to blog universe', // Subjet
+                'otp', // Template
+                { // Template Data
+                    date: now,
+                    name: newUser.name, 
+                    otp: otp, 
+                }
+            )
+
+            // Return success message
+            res
+                .status(HttpCode.CREATED)
+                .json({msg: "OTP regenerer !"})            
+        } catch (error) {
+            return exceptions.serverError(res, error);
+        }    
     }
 }
 export default usersControllers;

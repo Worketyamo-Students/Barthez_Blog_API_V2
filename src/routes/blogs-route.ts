@@ -33,7 +33,7 @@ blog.post(
 // Add Many blogs 
 blog.post(
     ROUTES.BLOG.CREATE_MANY_BLOG,
-    auth.authToken,
+    // auth.authToken,
     validator.validateBlog,
     validate,
     blogsController.create_many_blog
@@ -42,9 +42,9 @@ blog.post(
 // Update blog
 blog.put(
     ROUTES.BLOG.UPDATE_BLOG,
-    auth.authToken,
-    validator.validateBlog,
-    validate,
+    // auth.authToken,
+    // validator.validateBlog,
+    // validate,
     upload.single('image'),
     blogsController.update_blog
 )
