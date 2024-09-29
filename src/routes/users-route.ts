@@ -74,7 +74,6 @@ user.put(
 //? verifyOTP
 user.put(
     ROUTES.USER.VERIFY_OTP,
-    auth.authToken,
     validator.validateOTP,
     validate, 
     usersControllers.verifyOtp
