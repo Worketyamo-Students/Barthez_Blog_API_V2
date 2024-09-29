@@ -52,7 +52,6 @@ export const validator = {
 
         // validation of user password
         body('newpassword')
-            .optional()
             .exists().withMessage('Le mot de passe est requis !')
             .matches(passwordRegex).withMessage('mot de passe trop faible !')
         ,
@@ -67,14 +66,12 @@ export const validator = {
 
         // validation of user password
         body('oldPassword')
-            .optional()
             .exists().withMessage('Le mot de passe est requis !')
             .matches(passwordRegex).withMessage('mot de passe trop faible !')
         ,
 
         // validation of user password
         body('newpassword')
-            .optional()
             .exists().withMessage('Le mot de passe est requis !')
             .matches(passwordRegex).withMessage('mot de passe trop faible !')
         ,

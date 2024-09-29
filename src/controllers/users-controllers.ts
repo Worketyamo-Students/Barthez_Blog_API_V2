@@ -137,14 +137,12 @@ const usersControllers = {
     },
     
     // function to consult users
-    consultuser: async (req: customRequest, res: Response) =>{
+    consultuser: async (req: Request, res: Response) =>{
         try {
-            // fetch userID from authentification
-            const userID = req.user?.user_id;            
-            if(!userID) return exceptions.unauthorized(res, "authentification error !");
+            const {userID} = req.params
 
-            // Check if user user exist
-            const user = await prisma.user.findUnique({where: {user_id: userID}})
+            // check if user exist
+            const user = await prisma.user.findUnique({where: {user_id: userID}});
             if(!user) return exceptions.badRequest(res, "user not found !");
 
             const infoUser = {
@@ -162,7 +160,7 @@ const usersControllers = {
         }
     },
 
-    // function to update user //! comment verifier l'unicité de l'email à ce moment ? quel syntaxe ?
+    // function to update user 
     updateUserData: async (req: customRequest, res: Response) =>{
         try {
             // fetch employeID from authentification
@@ -206,7 +204,7 @@ const usersControllers = {
         }
     },
 
-    // function to delete user //! Comment supprimer également les infos sur l'access et le efresh token de l'user 
+    // function to delete user 
     deleteUser: async (req: customRequest, res: Response) =>{
         try {
             // fetch employeID from authentification
@@ -217,12 +215,28 @@ const usersControllers = {
             const user = await prisma.user.findUnique({where: {user_id: userID}})
             if(!user) return exceptions.badRequest(res, "user not found !");
  
+            // Supprimer d'abord les blogs liée à cet utilisateur
+            await prisma.blog.deleteMany({
+                where: {authorID: userID}
+            })
+
             const deleteUser = await prisma.user.delete(
                 {where: 
                     {user_id: userID}
                 }
             );
             if(!deleteUser) return exceptions.notFound(res, "error when delete user !");
+
+            // suppression des token d'access
+            res.setHeader('authorization', `Bearer `);
+            res.clearCookie(
+                `refresh_key`,
+                {
+                    secure: envs.JWT_COOKIE_SECURITY,
+                    httpOnly: envs.JWT_COOKIE_HTTP_STATUS,
+                    sameSite: "strict"
+                }
+            )
 
             // Return success message
             res
@@ -271,7 +285,7 @@ const usersControllers = {
             // check if user exist
             const user = await prisma.user.findUnique({where: {email}});
             if(!user) return exceptions.notFound(res, "user not exist !");
-            
+        
             const hashPassword = await hashText(newpassword);
             if(!hashPassword) return exceptions.badRequest(res, "error trying to crypt password !");
 

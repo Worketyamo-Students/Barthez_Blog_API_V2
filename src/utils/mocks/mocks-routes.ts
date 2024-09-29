@@ -5,11 +5,11 @@ const ROUTES = {
         CONNEXION: '/login',
         DECONNEXION: '/logout',
         GET_USER: '/profile/:userID',
-        UPDATE_USER: '/profile/:userID',
-        DELETE_USER: '/profile/:userID',
+        UPDATE_USER: '/profile',
+        DELETE_USER: '/profile',
         RESEND_OTP: '/resend-otp',
         VERIFY_OTP: '/verify-otp',
-        RESET_PASSSWORD: "/profile/config",
+        RESET_PASSSWORD: "/reset-password",
         CHANGE_PASSSWORD: "/profile/config"
     },
     
