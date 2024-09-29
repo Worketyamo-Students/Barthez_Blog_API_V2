@@ -5,6 +5,8 @@
 *.exe
 *.dll
 *.so
+*.fetch-client
+.fetch-client/*
 
 # Ignore build output directories
 bin/

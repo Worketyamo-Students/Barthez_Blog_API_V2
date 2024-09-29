@@ -11,7 +11,7 @@ export interface IUser {
 
 
 
-interface IBlog{
+export interface IBlog{
     blog_id:   string;   
     title:     string;
     content:   string;

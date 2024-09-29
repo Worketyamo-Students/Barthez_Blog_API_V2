@@ -11,7 +11,8 @@ import cookieParser from 'cookie-parser';
 import user from './routes/users-route';
 import { envs } from './core/config/env';
 import blog from './routes/blogs-route';
-
+import { CronJob } from 'cron';
+import usersControllers from './controllers/users-controllers';
 
 const app = express();
 
@@ -62,6 +63,18 @@ app.use(
 	}),
 	blog
 );
+
+//? Defines all My Jobs
+new CronJob(
+    '0 0 0 * * *', // cronTime
+	async() => {
+		await usersControllers.DeleteUNVERIFIED();
+        console.log('Not verified user ddeleted !');
+	},
+	null, // onComplete
+	true, // start
+);
+
 
 // Journalisations
 app.use(morgan('combined'));

@@ -103,13 +103,13 @@ export const validator = {
         body('title')
             .exists().withMessage('title is required !')
             .isLength({ min: 3 }).withMessage('le titre n\'est pas assez long !')
-            .isLength({ max: 100 }).withMessage('le titre est trop long !')
-            .isString().withMessage('title should be a number !')
+            .isLength({ max: 300 }).withMessage('le titre est trop long !')
+            .isString().withMessage('title should be a string !')
         ,
         body('content')
             .exists().withMessage('content is required !')
             .isLength({ min: 3 }).withMessage('le contenu n\'est pas assez long !')
-            .isString().withMessage('content should be a number !')
+            .isString().withMessage('content should be a string !')
         ,
     ],
 }

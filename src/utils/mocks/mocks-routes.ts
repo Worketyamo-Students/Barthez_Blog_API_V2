@@ -22,7 +22,7 @@ const ROUTES = {
         UPDATE_BLOG: '/:blogID',
         DELETE_ONE_BLOG: '/:blogID',
         DELETE_MANY_BLOG: '/',
-        LIKE_BLOG: '/:blogID'
+        LIKE_BLOG: '/like/:blogID'
     },
     
     UPLOAD: {

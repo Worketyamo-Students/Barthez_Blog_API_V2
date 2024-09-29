@@ -22,6 +22,7 @@ model User {
 
   otp           String
   otp_expire_at DateTime
+  verified      Boolean  @default(false)
 
   blog Blog[]
   role RoleUser @default(user)

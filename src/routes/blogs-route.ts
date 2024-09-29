@@ -42,9 +42,9 @@ blog.post(
 // Update blog
 blog.put(
     ROUTES.BLOG.UPDATE_BLOG,
-    // auth.authToken,
+    auth.authToken,
     // validator.validateBlog,
-    // validate,
+    // validate, 
     upload.single('image'),
     blogsController.update_blog
 )
@@ -59,10 +59,12 @@ blog.delete(
 // Delete ALL blog
 blog.delete(
     ROUTES.BLOG.DELETE_MANY_BLOG,
-    // auth.authToken,
+    auth.authToken,
+    // roleAdmin,
     blogsController.delete_All_blogs
 )
 
+// Like blog //! update the controllers of this routes
 blog.put(
     ROUTES.BLOG.LIKE_BLOG,
     blogsController.like_blog

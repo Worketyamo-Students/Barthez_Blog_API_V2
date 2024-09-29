@@ -1,8 +1,7 @@
 import slugify from "slugify";
-import uniqueSlug from 'unique-slug'
 
 
-const generateUniqueSlug = (title: string):string => {
+const generateSlug = (title: string):string => {
     let slug = title;
 
     slug = slugify(slug,
@@ -14,9 +13,8 @@ const generateUniqueSlug = (title: string):string => {
         locale: 'vi',      // language code of the locale to use
         trim: true         // trim leading and trailing replacement chars, defaults to `true`
     });
-    slug = uniqueSlug(slug);
     
     return slug;
 }
 
-export default generateUniqueSlug;
+export default generateSlug;

@@ -6,6 +6,7 @@ import { BLOG, GLOBAL_MSG } from "../utils/mocks/mocks-message"
 import generateUniqueSlug from "../functions/generateSlug"
 import { customRequest } from '../core/Interfaces/interfaces';
 import uploadImageToMinio from "../functions/uploader"
+import generateSlug from "../functions/generateSlug"
 
 
 const blogsController = {
@@ -15,13 +16,16 @@ const blogsController = {
             // fetch data from body
             const {title, content} = req.body
             
-            // Fetch the author id to the creator of blog
+            // Fetch the author id from the authenticated user
             const authorID = req.user?.user_id;
             if(!authorID) return  res.status(HttpCode.UNAUTHORIZED).json({message: GLOBAL_MSG.UNAUTHORIZED})
-console.log(authorID);
             
+            // Check if the title is unique
+            const TitleEverExist = await prisma.blog.findFirst({where: {title}});
+            if(TitleEverExist) return exceptions.conflict(res, BLOG.CONFICT);
+
             // generate unique slug using the title
-            const slug = generateUniqueSlug(title);
+            const slug = generateSlug(title);
             
             // Make sure that the generated slug is really unique
             const isUnique = await prisma.blog.findFirst({where: {slug}});
@@ -37,13 +41,16 @@ console.log(authorID);
             const new_blog = await prisma.blog.create({
                 data: {
                     title, content, slug, image: imageURL, authorID: authorID, createdAt: createDate
+                },
+                select:{
+                    title: true, content: true, slug: true, image: true, authorID: true, createdAt: true
                 }
             })
             // Send error message if error appear
             if(!new_blog) return exceptions.badRequest(res, GLOBAL_MSG.TRAITEMENT_FAILED)
 
             // Return success message if all is correct
-            res.status(HttpCode.CREATED).json({msg: GLOBAL_MSG.SUCCESS, blog:  new_blog})
+            res.status(HttpCode.CREATED).json({msg: BLOG.CREATED, blog:  new_blog})
         } catch (error) {
             exceptions.serverError(res, error)
         }
@@ -55,10 +62,9 @@ console.log(authorID);
             // fetch data from body
             const {title, content} = req.body
             
-            // Fetch the author id to the creator of blog
+            // Fetch the author id from the authenticated user
             const authorID = req.user?.user_id;
             if(!authorID) return  res.status(HttpCode.UNAUTHORIZED).json({message: GLOBAL_MSG.UNAUTHORIZED})
-console.log(authorID);
 
             // generate unique slug using the title
             const slug = generateUniqueSlug(title);
@@ -79,7 +85,7 @@ console.log(authorID);
             })
             if(blogs.count === 0) return exceptions.badRequest(res, GLOBAL_MSG.TRAITEMENT_FAILED) 
                 
-            res.status(HttpCode.CREATED).json({msg: GLOBAL_MSG.SUCCESS, blogs: blogs})
+            res.status(HttpCode.CREATED).json({msg: BLOG.CREATED, blogs: blogs})
         } catch (error) {
             exceptions.serverError(res, error)
         }
@@ -127,18 +133,23 @@ console.log(authorID);
             // fetch data from body
             const {title, content} = req.body
             
-            // Fetch the author id to the creator of blog
+            // Fetch the author id from the authenticated user
             const authorID = req.user?.user_id;
             if(!authorID) return  res.status(HttpCode.UNAUTHORIZED).json({message: GLOBAL_MSG.UNAUTHORIZED})
-console.log(authorID);
             
             const blog = await prisma.blog.findUnique({where: {blog_id: blogID}});
             if(!blog) return exceptions.notFound(res, GLOBAL_MSG.NOT_FOUND);
 
             if(blog.authorID  !== authorID) return exceptions.badRequest(res, GLOBAL_MSG.UNAUTHORIZED)
 
+            // Check if the new title is unique
+            if(title && title !== blog.title) {
+                const TitleEverExist = await prisma.blog.findFirst({where: {title}});
+                if(TitleEverExist) return exceptions.conflict(res, BLOG.CONFICT);
+            }
+
             // generate unique slug using the title
-            const slug = generateUniqueSlug(title);
+            const slug = generateSlug(title);
 
             // Make sure that the generated slug is really unique
             const isUnique = await prisma.blog.findFirst({where: {slug}});
@@ -154,22 +165,33 @@ console.log(authorID);
                 where: {blog_id: blogID},
                 data: {
                     title, content, slug, image: imageURL, authorID: authorID, updatedat: updateDate
+                },
+                select:{
+                    title: true, content: true, slug: true, image: true, authorID: true, createdAt: true
                 }
             })
             if(!new_blog) return exceptions.badRequest(res, GLOBAL_MSG.TRAITEMENT_FAILED)
 
-            res.status(HttpCode.OK).json({msg: GLOBAL_MSG.SUCCESS})
+            // Return success message if all is correct
+            res.status(HttpCode.CREATED).json({msg: BLOG.UPDATE, blog:  new_blog})
         } catch (error) {
             exceptions.serverError(res, error)
         }
     },
 
     // Function to delete One blog
-    delete_one_blog: async(req: Request, res: Response) => {
+    delete_one_blog: async(req: customRequest, res: Response) => {
         try {
             const {blogID} = req.params
+       
             const blog = await prisma.blog.findUnique({where: {blog_id: blogID}});
             if(!blog) return exceptions.notFound(res, GLOBAL_MSG.NOT_FOUND);
+
+            // Fetch the author id from the authenticated user
+            const authorID = req.user?.user_id;
+            if(!authorID) return  res.status(HttpCode.UNAUTHORIZED).json({message: GLOBAL_MSG.UNAUTHORIZED})
+
+            if(blog.authorID  !== authorID) return exceptions.badRequest(res, GLOBAL_MSG.UNAUTHORIZED)            
             
             await prisma.blog.delete({where: {blog_id: blogID}})
 
@@ -194,6 +216,9 @@ console.log(authorID);
         try {
             const {blogID} = req.params
 
+            const blog = await prisma.blog.findUnique({where: {blog_id: blogID}});
+            if(!blog) return exceptions.notFound(res, GLOBAL_MSG.NOT_FOUND);
+
             const likeBlog = await prisma.blog.update({
                 where: {blog_id: blogID},
                 data: {
@@ -202,7 +227,7 @@ console.log(authorID);
             })
             if(!likeBlog) return  exceptions.badRequest(res, GLOBAL_MSG.TRAITEMENT_FAILED)
             
-            res.status(HttpCode.OK).json({msg: GLOBAL_MSG.SUCCESS})
+            res.status(HttpCode.OK).json({msg: BLOG.LIKED})
         } catch (error) {
             exceptions.serverError(res, error)
         }

@@ -314,10 +314,13 @@ const usersControllers = {
             const user = await prisma.user.findUnique({where: {email}});
             if(!user) return exceptions.notFound(res, "user not exist !");
 
-            const now = new Date();
-
+            
             // Check if otp have ever expired
+            const now = new Date();
             if(user.otp_expire_at > now) return exceptions.unauthorized(res, 'Your token have ever expired !');
+
+            // Check if he was ever verified
+            if(user.verified === true) return exceptions.unauthorized(res, 'Your have ever sign in !');
 
             // Check if it's the correct otp
             if(user.otp !== otp) return exceptions.unauthorized(res, 'Incorect token !');
@@ -328,7 +331,7 @@ const usersControllers = {
                     email
                 },
                 data: {
-                    otp: "verified",
+                    verified: true,
                 }
             });
             
@@ -347,8 +350,6 @@ const usersControllers = {
             // check if user exist
             const user = await prisma.user.findUnique({where: {email}});
             if(!user) return exceptions.notFound(res, "user not exist !");
-
-            if(user.otp === "verified") return exceptions.unauthorized(res, 'veillez vous connecterd de nouveau !');
 
             const otp = generateSimpleOTP();
             const now = new Date();
@@ -383,6 +384,17 @@ const usersControllers = {
         } catch (error) {
             return exceptions.serverError(res, error);
         }    
+    },
+
+    // Fonction qui va se charger de supprimer tous les otp mis a null a minuit tous les jours
+    DeleteUNVERIFIED: async () => {
+        try {
+            await prisma.user.deleteMany({where: {verified: false}});            
+        } catch (error) {
+            console.error(error);
+            throw new Error(error);
+            
+        }
     }
 }
 export default usersControllers;

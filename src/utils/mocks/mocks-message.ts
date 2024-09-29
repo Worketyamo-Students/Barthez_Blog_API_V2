@@ -7,7 +7,11 @@ export const GLOBAL_MSG = {
 }
 
 export const BLOG = {
+    CREATED: "Blog Created",
+    UPDATE: "Blog update",
+    CONFICT: "Blog With this title Ever exist",
     UNIQUE_SLUG: "the slug have to be unique", 
+    LIKED: "Blog liked"
 }
 
 export const UPLOAD_MSG = {
