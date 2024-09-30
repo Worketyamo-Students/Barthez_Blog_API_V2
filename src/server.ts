@@ -23,7 +23,9 @@ app.use(helmet()) //Pour configurer les entete http securisés
 
 app.use(cors({
 	methods: ['GET', 'POST', 'PUT', 'DELETE'],
-	allowedHeaders: ['Content-Type', 'Authorization']
+	allowedHeaders: ['Content-Type', 'Authorization'],
+	origin: 'http://localhost:3000',
+	credentials: true,
 })) // Pour gerer le partage des ressources de maniere securisée
 
 // Configuration globaux de l'application express

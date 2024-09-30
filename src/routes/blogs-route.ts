@@ -1,9 +1,9 @@
 import { Router } from "express";
 import ROUTES from "../utils/mocks/mocks-routes";
-import { auth } from "../middleware/authUser";
 import { validate, validator } from "../services/validator/validator";
 import blogsController from "../controllers/blogs-controller";
 import upload from "../middleware/upload-file";
+import authUser from "../middleware/authUser";
 
 
 const blog: Router = Router()
@@ -16,14 +16,14 @@ blog.get(
 // Get all blogs 
 blog.get(
     ROUTES.BLOG.GET_MANY_BLOG,
-    // auth.authToken,
+    // authUser,
     blogsController.get_many_blog
 )
 
 // Add new blog 
 blog.post(
     ROUTES.BLOG.CREATE_ONE_BLOG,
-    auth.authToken,
+    authUser,
     validator.validateBlog,
     validate,
     upload.single('image'),
@@ -33,7 +33,7 @@ blog.post(
 // Add Many blogs 
 blog.post(
     ROUTES.BLOG.CREATE_MANY_BLOG,
-    // auth.authToken,
+    // authUser,
     validator.validateBlog,
     validate,
     blogsController.create_many_blog
@@ -42,7 +42,7 @@ blog.post(
 // Update blog
 blog.put(
     ROUTES.BLOG.UPDATE_BLOG,
-    auth.authToken,
+    authUser,
     // validator.validateBlog,
     // validate, 
     upload.single('image'),
@@ -52,14 +52,14 @@ blog.put(
 // Delete One blog
 blog.delete(
     ROUTES.BLOG.DELETE_ONE_BLOG,
-    auth.authToken,
+    authUser,
     blogsController.delete_one_blog
 )
 
 // Delete ALL blog
 blog.delete(
     ROUTES.BLOG.DELETE_MANY_BLOG,
-    auth.authToken,
+    authUser,
     // roleAdmin,
     blogsController.delete_All_blogs
 )

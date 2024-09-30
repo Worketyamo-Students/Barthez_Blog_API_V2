@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { auth } from "../middleware/authUser";
 import usersControllers from "../controllers/users-controllers";
 import { validate, validator } from "../services/validator/validator";
 import ROUTES from "../utils/mocks/mocks-routes";
 import upload from "../middleware/upload-file";
+import authUser from "../middleware/authUser";
 
 const user: Router = Router();
 
@@ -27,7 +27,7 @@ user.post(
 //? Deconnexion of user
 user.post(
     ROUTES.USER.DECONNEXION, 
-    auth.authToken,
+    authUser,
     usersControllers.deconnexion
 );
 
@@ -40,7 +40,7 @@ user.get(
 //? update user
 user.put(
     ROUTES.USER.UPDATE_USER,
-    auth.authToken,
+    authUser,
     // validator.validateUser,
     // validate, 
     upload.single('image'),
@@ -50,14 +50,14 @@ user.put(
 //? Delete user
 user.delete(
     ROUTES.USER.DELETE_USER, 
-    auth.authToken,
+    authUser,
     usersControllers.deleteUser
 );
 
 //? changepassword
 user.put(
     ROUTES.USER.CHANGE_PASSSWORD,
-    auth.authToken,
+    authUser,
     validator.validatePWDs,
     validate, 
     usersControllers.changePassword
