@@ -1,5 +1,5 @@
 
-# Blog Management API
+# Blog Management System - Backend
 
 
 This is a RESTful API built with Node.js, Express, and MongoDB for managing a blog system. The API provides user authentication via JWT, password hashing with bcrypt, and full CRUD operations for blog posts. It serves as the backend for a blog platform where users can sign up, log in, and manage their own blog posts.
